@@ -1,0 +1,14 @@
+.rvmrc
+.rspec
+.yardoc
+*.gem
+*~
+*#
+*#*
+.DS_Store
+.DS_Store?
+.irbrc
+.bundle
+.jbundler
+Gemfile.lock
+Jarfile.lock
