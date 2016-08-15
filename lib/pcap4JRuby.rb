@@ -1,5 +1,6 @@
 require 'java'
 require 'jars/setup'
+require 'pcap4JRuby/exceptions'
 
 java_import 'org.pcap4j.core.Pcaps'
 java_import 'org.pcap4j.core.PcapNativeException'
@@ -12,18 +13,8 @@ module Pcap4JRuby
 
   # Find first device that has an address assigned to it that is not the loopback
   def self.lookupdev
-    device = nil
-    begin
-      each_device do |dev|
-        next if dev.getAddresses.to_a.empty? || dev.isLoopBack
-        device = dev
-        break
-      end
-    rescue PcapNativeException => e
-      STDERR.puts "native Pcap error looking up device: #{e}"
-    end
-
-    return device
+    device = find_active_dev
+    device ? device.name : nil
   end
 
   def self.lookupnet(device)
@@ -38,12 +29,8 @@ module Pcap4JRuby
   end
 
   def self.open_live(opts={},&block)
-    device = if opts[:device]
-               device = nil
-               each_device { |dev| device = dev if dev.name == opts[:device] }
-             else
-               lookupdev
-             end
+    device = find_active_dev(opts[:name])
+    raise NoCompatibleDeviceException unless device
 
     device.openLive(
       opts[:snaplen] || DEFAULT_SNAPLEN,
@@ -97,6 +84,22 @@ module Pcap4JRuby
 
   def self.lib_version_number
     Pcaps.libVersion.match(/libpcap version (\d+\.\d+\.\d+)/)[1]
+  end
+
+  def self.find_active_dev(name)
+    device = nil
+    begin
+      each_device do |dev|
+        next if dev.getAddresses.to_a.empty? || dev.isLoopBack
+        next if name && name != dev.name
+        device = dev
+        break
+      end
+    rescue PcapNativeException => e
+      STDERR.puts "native Pcap error looking up device: #{e}"
+    end
+
+    device
   end
 
 end

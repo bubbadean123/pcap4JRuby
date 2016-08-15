@@ -12,3 +12,4 @@
 .jbundler
 Gemfile.lock
 Jarfile.lock
+Jars.lock
