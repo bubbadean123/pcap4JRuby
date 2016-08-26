@@ -13,7 +13,7 @@ module Pcap4JRuby
 
   # Find first device that has an address assigned to it that is not the loopback
   def self.lookupdev
-    device = find_active_dev
+    device = find_active_device
     device ? device.name : nil
   end
 
@@ -29,14 +29,8 @@ module Pcap4JRuby
   end
 
   def self.open_live(opts={},&block)
-    device = find_active_dev(opts[:name])
-    raise NoCompatibleDeviceException unless device
-
-    device.openLive(
-      opts[:snaplen] || DEFAULT_SNAPLEN,
-      opts[:promiscuity] || PcapNetworkInterface::PromiscuousMode::NONPROMISCUOUS,
-      opts[:timeout] || DEFAULT_TIMEOUT
-    )
+    live = OpenLive.new(opts, &block)
+    return block_given? ? live.close : ret
   end
 
   def self.open_dead(opts={},&block)
@@ -86,7 +80,7 @@ module Pcap4JRuby
     Pcaps.libVersion.match(/libpcap version (\d+\.\d+\.\d+)/)[1]
   end
 
-  def self.find_active_dev(name)
+  def self.find_active_device(name)
     device = nil
     begin
       each_device do |dev|
