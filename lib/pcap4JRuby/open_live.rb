@@ -1,18 +1,19 @@
 require 'java'
-require 'jars/setup'
+require 'pcap4JRuby'
 require 'pcap4JRuby/exceptions'
+require 'pcap4JRuby/base_handle'
 
 java_import 'org.pcap4j.core.PcapNativeException'
 java_import 'org.pcap4j.core.PcapNetworkInterface'
 java_import 'org.pcap4j.core.PcapHandle'
 
 module Pcap4JRuby
-  class OpenLive
+  class OpenLive < BaseHandle
 
     DIRECTION_MAPPING = {
-      "in_out" => PcapHandle::PcapDirection::PCAP_D_INOUT,
-      "in" => PcapHandle::PcapDirection::PCAP_D_IN,
-      "out" => PcapHandle::PcapDirection::PCAP_D_OUT
+      "in_out" => PcapHandle::PcapDirection::INOUT,
+      "in" => PcapHandle::PcapDirection::IN,
+      "out" => PcapHandle::PcapDirection::OUT
     }
 
     BLOCKING_MAPPING = {
@@ -22,8 +23,13 @@ module Pcap4JRuby
     }
 
     def initialize(opts={}, &block)
-      @device_name = opts[:device] || opts[:dev_name]
-      @device = @device_name ? Pcap4JRuby.find_active_device(device_name) : Pcap4JRuby.find_active_device
+      @device = if opts[:device] || opts[:dev_name]
+                  Pcap4JRuby.find_active_device(@device_name)
+                else
+                  Pcap4JRuby.find_active_device
+                end
+      @device_name = @device.getName
+
       raise NoCompatibleDeviceException unless @device
       @network = Pcap4JRuby.lookupnet(@device_name).to_s
 
@@ -35,11 +41,8 @@ module Pcap4JRuby
       @direction = DIRECTION_MAPPING[opts[:direction]]
       set_direction(@direction) if @direction
 
+      super(@handle)
       yield self if block_given?
-    end
-
-    def close
-      @handle.close if handle
     end
 
     def set_direction(direction)
@@ -81,7 +84,10 @@ module Pcap4JRuby
     def inject(packet)
       case packet
       when Packet
+        # for now... figure out how to handle different packet classes
+        self.inject(packet.to_s)
       when String
+        @handle.sendPacket(packet.to_java_bytes)
       else
         raise InvalidPacket, "#{packet.inspect}"
       end

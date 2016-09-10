@@ -1,6 +1,10 @@
 require 'java'
 require 'jars/setup'
 require 'pcap4JRuby/exceptions'
+require 'pcap4JRuby/open_live'
+require 'pcap4JRuby/open_dead'
+require 'pcap4JRuby/open_offline'
+
 
 java_import 'org.pcap4j.core.Pcaps'
 java_import 'org.pcap4j.core.PcapNativeException'
@@ -18,7 +22,6 @@ module Pcap4JRuby
   end
 
   def self.lookupnet(device)
-    net = nil
     begin
       net = Pcaps.lookupNet(device)
     rescue PcapNativeException => e
@@ -30,10 +33,12 @@ module Pcap4JRuby
 
   def self.open_live(opts={},&block)
     live = OpenLive.new(opts, &block)
-    return block_given? ? live.close : ret
+    return block_given? ? live.close : live
   end
 
   def self.open_dead(opts={},&block)
+    dead = OpenDead.new(opts, &block)
+    return block_given? ? dead.close : dead
   end
 
   def self.open_offline(path, opts={}, &block)
@@ -80,7 +85,7 @@ module Pcap4JRuby
     Pcaps.libVersion.match(/libpcap version (\d+\.\d+\.\d+)/)[1]
   end
 
-  def self.find_active_device(name)
+  def self.find_active_device(name=nil)
     device = nil
     begin
       each_device do |dev|

@@ -5,9 +5,9 @@ module Pcap4JRuby
 
     def initialize(pcap_stat=nil)
       @packets_received = pcap_stat.getNumPacketsReceived if pcap_stat
-      @packets_received = pcap_stat.getNumPacketsDropped if pcap_stat
-      @packets_received = pcap_stat.getNumPacketsDroppedByIf if pcap_stat
-      @packets_received = pcap_stat.getNumPacketsCaptured if pcap_stat && Gem.win_platform?
+      @packets_dropped = pcap_stat.getNumPacketsDropped if pcap_stat
+      @packets_dropped_by_if = pcap_stat.getNumPacketsDroppedByIf if pcap_stat
+      @packets_captured = pcap_stat.getNumPacketsCaptured if pcap_stat && Gem.win_platform?
     end
 
     alias_method :received, :packets_received
