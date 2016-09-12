@@ -17,7 +17,7 @@ module Pcap4JRuby
     end
 
     def ready?
-      @handle.isOpen
+      @handle.isOpen && !!@handle
     end
 
     def close

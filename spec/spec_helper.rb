@@ -11,12 +11,7 @@ PROJECT_ROOT = File.join(PROJECT_ROOT_PATH, 'pcap4JRuby')
 Dir["#{SPEC_ROOT}/spec/support/**/*.rb"].sort.each { |f| require f}
 require 'pcap4JRuby'
 
-DEFAULT_PCAP_DEV = case RUBY_PLATFORM
-                   when /linux/
-                     'lo'
-                   when /(bsd|darwin)/
-                     'lo0'
-                   end
+DEFAULT_PCAP_DEV = Pcap4JRuby.loopback
 DEFAULT_TESTFILE = Pathname.new(__FILE__).dirname.join('dumps','simple_tcp.pcap')
 DEFAULT_TESTADDR = '127.0.0.1'
 

@@ -22,12 +22,11 @@ module Pcap4JRuby
       "non_blocking" => PcapHandle::BlockingMode::NONBLOCKING
     }
 
+    attr_reader :device_name, :device, :network, :direction
+
     def initialize(opts={}, &block)
-      @device = if opts[:device] || opts[:dev_name]
-                  Pcap4JRuby.find_active_device(@device_name)
-                else
-                  Pcap4JRuby.find_active_device
-                end
+      device = opts[:device] || opts[:dev_name]
+      @device = Pcap4JRuby.find_active_device(device)
       @device_name = @device.getName
 
       raise NoCompatibleDeviceException unless @device
@@ -43,6 +42,8 @@ module Pcap4JRuby
 
       super(@handle)
       yield self if block_given?
+
+      self
     end
 
     def set_direction(direction)
@@ -83,14 +84,15 @@ module Pcap4JRuby
 
     def inject(packet)
       case packet
-      when Packet
-        # for now... figure out how to handle different packet classes
-        self.inject(packet.to_s)
+      when org.pcap4j.packet.AbstractPacket
+        @handle.sendPacket(packet)
       when String
         @handle.sendPacket(packet.to_java_bytes)
       else
         raise InvalidPacket, "#{packet.inspect}"
       end
+
+      packet.length
     end
 
     alias_method :send_packet, :inject

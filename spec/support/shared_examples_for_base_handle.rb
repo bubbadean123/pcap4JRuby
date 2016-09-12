@@ -41,26 +41,26 @@ shared_examples "Pcap4JRuby::BaseHandle" do
     chk_pcap.close
   end
 
-  it "should raise an exception when opening a bad dump file" do
+  it "raises an exception when opening a bad dump file" do
     expect {
       @pcap.open_dump(File.join('','obviously','not','there'))
     }.to raise_error(Exception)
   end
 
-  it "should be able to compile a filter" do
+  it "is able to compile a filter" do
     filter = @pcap.compile("ip")
     expect(filter).to_not be_nil
     expect(filter).to be_a(Pcap4JRuby::BPFProgram)
     expect(filter.expression.length > 0).to be(true)
   end
 
-  it "should detect invalid filter syntax when compiling" do
+  it "detects invalid filter syntax when compiling" do
     expect {
       @pcap.compile("ip and totally bogus")
     }.to raise_error(Pcap4JRuby::InvalidBPFExpression)
   end
 
-  it "should prevent double closes" do
+  it "prevents double closes" do
     @pcap.close
     expect(@pcap).to be_closed
     expect(@pcap).to_not be_ready
@@ -70,7 +70,7 @@ shared_examples "Pcap4JRuby::BaseHandle" do
     }.to_not raise_error
   end
 
-  it "should pass packets to a block using loop()" do
+  it "passes packets to a block using loop()" do
     i = 0
     @pkt = nil
     @pcap.loop(:count => 2) do |this, pkt|
@@ -82,12 +82,12 @@ shared_examples "Pcap4JRuby::BaseHandle" do
     expect(i).to eq(2)
   end
 
-  it "should be able to get the next packet" do
+  it "is able to get the next packet" do
     pkt = @pcap.next
     expect(pkt).to_not be_nil
   end
 
-  it "should be able to break out of a pcap loop()" do
+  it "is able to break out of a pcap loop()" do
     stopped = false
     i = 0
 
@@ -101,17 +101,17 @@ shared_examples "Pcap4JRuby::BaseHandle" do
     expect(stopped).to eq(true)
   end
 
-  it "should consume packets without a block passed to loop()" do
+  it "consumes packets without a block passed to loop()" do
     expect { @pcap.loop(:count => 3) }.to_not raise_error
   end
 
-  it "should be able to set a filter" do
+  it "is able to set a filter" do
     expect {
       @pcap.set_filter("ip")
     }.to_not raise_error
   end
 
-  it "should detect invalid filter syntax in set_filter" do
+  it "detects invalid filter syntax in set_filter" do
     expect {
       @pcap.set_filter("ip and totally bogus")
     }.to raise_error(Pcap4JRuby::Pcap4JRubyError)

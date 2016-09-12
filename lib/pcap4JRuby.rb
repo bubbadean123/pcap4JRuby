@@ -5,7 +5,6 @@ require 'pcap4JRuby/open_live'
 require 'pcap4JRuby/open_dead'
 require 'pcap4JRuby/open_offline'
 
-
 java_import 'org.pcap4j.core.Pcaps'
 java_import 'org.pcap4j.core.PcapNativeException'
 java_import 'org.pcap4j.core.PcapNetworkInterface'
@@ -42,9 +41,13 @@ module Pcap4JRuby
   end
 
   def self.open_offline(path, opts={}, &block)
+    ts_precision = opts[:ts] || opts[:timestamp] || opts[:precision]
+    offline = OpenOffline.new(path, ts_precision, &block)
+    return block_given? ? offline.close : offline
   end
 
   def self.open_file(path, opts={}, &block)
+    open_offline(path, opts, &block)
   end
 
   def self.each_device
@@ -59,11 +62,22 @@ module Pcap4JRuby
     devices.each {|dev| yield dev}
   end
 
+  # Only add devices that have addresses assigned
   def self.dump_devices
     ret = []
-    each_device {|dev| ret << [dev.name, Pcaps.lookupNet(dev.name)]}
+    each_device do |dev|
+      begin
+        ret << [dev.name, Pcaps.lookupNet(dev.name)]
+      rescue org.pcap4j.core::PcapNativeException
+        next
+      end
+    end
 
     ret
+  end
+
+  def self.loopback
+    self.each_device {|device| return device.name if device.loop_back?}
   end
 
   def self.device_names
@@ -89,16 +103,17 @@ module Pcap4JRuby
     device = nil
     begin
       each_device do |dev|
-        next if dev.getAddresses.to_a.empty? || dev.isLoopBack
-        next if name && name != dev.name
-        device = dev
-        break
+        if name
+          next unless name.downcase.strip == dev.name.downcase.strip
+          return dev
+        else
+          next if dev.getAddresses.to_a.empty? || dev.isLoopBack
+          return dev
+        end
       end
     rescue PcapNativeException => e
       STDERR.puts "native Pcap error looking up device: #{e}"
     end
-
-    device
   end
 
 end

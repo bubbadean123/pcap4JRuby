@@ -9,7 +9,7 @@ module Pcap4JRuby
     end
 
     it 'lets you interact with a packet passed in to the gotPacket method' do
-      listener = PacketListener.new do |packet|
+      listener = PacketListener.new do |handle, packet|
         expect(String.from_java_bytes(packet.getRawData)).to eq("some garbage in a packet")
       end
 

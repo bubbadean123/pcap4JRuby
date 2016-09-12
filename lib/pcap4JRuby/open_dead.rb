@@ -5,6 +5,11 @@ java_import 'org.pcap4j.packet.namednumber.DataLinkType'
 java_import 'org.pcap4j.core.PcapHandle'
 
 module Pcap4JRuby
+  # The open dead class is not meant to inject and receive packets live
+  # It's main purpose is for dumping things to a file, or for compiling
+  # filters.
+  # The various packet capturing methods (next, loop, etc) are not gauranteed
+  # to work when called from a dead handle.
   class OpenDead < BaseHandle
 
     attr_reader :data_link
@@ -21,6 +26,9 @@ module Pcap4JRuby
                              end
       @handle = Pcaps.openDead(@data_link.to_java_obj, @snaplen, @timestamp_precision)
       super(@handle)
+      yield self if block_given?
+
+      self
     end
 
   end

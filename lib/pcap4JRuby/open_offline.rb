@@ -6,7 +6,7 @@ module Pcap4JRuby
 
     attr_reader :filepath
 
-    def initialize(filepath, ts_precision=nil)
+    def initialize(filepath, ts_precision=nil, &block)
       if ts_precision && ts_precision.downcase == "nano"
         @precision = org.pcap4j.core.PcapHandle::TimestampPrecision::NANO
       else
@@ -17,6 +17,9 @@ module Pcap4JRuby
       @handle = Pcaps.openOffline(@filepath, @precision)
 
       super(@handle)
+      yield self if block_given?
+
+      self
     end
 
     def file_version
