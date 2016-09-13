@@ -36,7 +36,7 @@ shared_examples "Pcap4JRuby::BaseHandle" do
 
     chk_pcap = Pcap4JRuby::OpenOffline.new(tmpfile)
     pkt = chk_pcap.next
-    expect(pkt).to be_kind_of org.pcap4j.packet.AbstractPacket
+    expect(pkt).to be_kind_of(org.pcap4j.packet.AbstractPacket)
     expect(String.from_java_bytes(pkt.getRawData)).to eq("i want to be a packet when i grow up")
     chk_pcap.close
   end
@@ -47,18 +47,20 @@ shared_examples "Pcap4JRuby::BaseHandle" do
     }.to raise_error(Exception)
   end
 
-  it "is able to compile a filter" do
-    filter = @pcap.compile("ip")
-    expect(filter).to_not be_nil
-    expect(filter).to be_a(Pcap4JRuby::BPFProgram)
-    expect(filter.expression.length > 0).to be(true)
-    filter.free
-  end
+  describe "compiling filters", :filters do
+    it "is able to compile a filter" do
+      filter = @pcap.compile("ip")
+      expect(filter).to_not be_nil
+      expect(filter).to be_a(Pcap4JRuby::BPFProgram)
+      expect(filter.expression.length > 0).to be(true)
+      filter.finalize
+    end
 
-  it "detects invalid filter syntax when compiling" do
-    expect {
-      @pcap.compile("ip and totally bogus")
-    }.to raise_error(Pcap4JRuby::InvalidBPFExpression)
+    it "detects invalid filter syntax when compiling" do
+      expect {
+        @pcap.compile("ip and totally bogus")
+      }.to raise_error(Pcap4JRuby::InvalidBPFExpression)
+    end
   end
 
   it "prevents double closes" do
@@ -75,7 +77,7 @@ shared_examples "Pcap4JRuby::BaseHandle" do
     i = 0
     @pkt = nil
     @pcap.loop(:count => 2) do |this, pkt|
-      expect(this).to eq(@pcap)
+      expect(this).to be_a(Pcap4JRuby::PacketListener)
       expect(pkt).to_not be_nil
       expect(pkt).to be_a(org.pcap4j.packet.AbstractPacket)
       i+=1
@@ -85,6 +87,11 @@ shared_examples "Pcap4JRuby::BaseHandle" do
 
   it "is able to get the next packet" do
     pkt = @pcap.next
+    expect(pkt).to_not be_nil
+  end
+
+  it "is able to get the next raw packet" do
+    pkt = @pcap.next_raw
     expect(pkt).to_not be_nil
   end
 

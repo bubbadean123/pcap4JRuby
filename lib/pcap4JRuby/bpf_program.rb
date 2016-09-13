@@ -18,6 +18,21 @@ module Pcap4JRuby
       @program
     end
 
+    def free
+      return unless @program
+      @program.free
+      @program = nil
+      @expression = nil
+    end
+
+    def finalize
+      return unless @program
+      @program.free
+      @program.finalize
+      @program = nil
+      @expression = nil
+    end
+
     def method_missing(sym, *args)
       super unless @program.methods.include?(sym)
       @program.send(sym)

@@ -64,17 +64,20 @@ module Pcap4JRuby
       }.to raise_error(Exception)
     end
 
-    it "is able to compile a filter" do
-      filter = @pcap.compile("ip")
-      expect(filter).to_not be_nil
-      expect(filter).to be_a(Pcap4JRuby::BPFProgram)
-      expect(filter.expression.length > 0).to be(true)
-    end
+    describe "compiling filters", :filters do
+      it "is able to compile a filter" do
+        filter = @pcap.compile("ip")
+        expect(filter).to_not be_nil
+        expect(filter).to be_a(Pcap4JRuby::BPFProgram)
+        expect(filter.expression.length > 0).to be(true)
+        filter.finalize
+      end
 
-    it "detects invalid filter syntax when compiling" do
-      expect {
-        @pcap.compile("ip and totally bogus")
-      }.to raise_error(Pcap4JRuby::InvalidBPFExpression)
+      it "detects invalid filter syntax when compiling" do
+        expect {
+          @pcap.compile("ip and totally bogus")
+        }.to raise_error(Pcap4JRuby::InvalidBPFExpression)
+      end
     end
 
     it "prevents double closes" do

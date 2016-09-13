@@ -12,9 +12,12 @@ module Pcap4JRuby
     end
 
     def gotPacket(packet)
-      @block.call(@pcap_handle, packet)
+      @block.call(self, packet)
     end
 
+    def stop
+      @pcap_handle.stop if @pcap_handle
+    end
     alias_method :got_packet, :gotPacket
   end
 end

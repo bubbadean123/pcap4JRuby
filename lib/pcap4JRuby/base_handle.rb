@@ -21,7 +21,7 @@ module Pcap4JRuby
     end
 
     def close
-      @handle.close if @handle
+      @handle.close if @handle && self.ready?
     end
 
     def closed?
@@ -89,7 +89,7 @@ module Pcap4JRuby
       listener = if block_given?
                    PacketListener.new(self, &block)
                  else
-                   PacketListener.new(self) { |pcap_handle, packet| nil }
+                   PacketListener.new(self) { |packet| nil }
                  end
 
       begin
