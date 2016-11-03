@@ -2,6 +2,7 @@ require 'java'
 require 'pcap4JRuby'
 require 'pcap4JRuby/exceptions'
 require 'pcap4JRuby/base_handle'
+require 'pcap4JRuby/stat'
 
 java_import 'org.pcap4j.core.PcapNativeException'
 java_import 'org.pcap4j.core.PcapNetworkInterface'
@@ -55,8 +56,16 @@ module Pcap4JRuby
 
     alias_method :direction=, :set_direction
 
-    def set_non_blocking(mode)
-      mapped_mode = BLOCKING_MAPPING[mode] || BLOCKING_MAPPING['nonblocking']
+    def set_non_blocking(mode="nonblocking")
+      mapped_mode = nil
+      case mode
+      when String
+        mapped_mode = BLOCKING_MAPPING[mode]
+      when Fixnum
+        mapped_mode = mode == 0 ? BLOCKING_MAPPING["blocking"] : BLOCKING_MAPPING["nonblocking"]
+      when Boolean
+        mapped_mode = mode == true ? BLOCKING_MAPPING["nonblocking"] : BLOCKING_MAPPING["blocking"]
+      end
 
       @handle.setBlockingMode(mapped_mode)
     end
