@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
                      " uses jna under the hood) to bind to win/libpcap."
   spec.authors = ["Donovan Lampa"]
   spec.email = ["donovan.lampa@gmail.com"]
-  spec.platform = "jruby"
+  spec.platform = "java"
 
   spec.files = Dir.glob("{lib,spec}/**/*")
 

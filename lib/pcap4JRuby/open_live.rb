@@ -63,7 +63,7 @@ module Pcap4JRuby
         mapped_mode = BLOCKING_MAPPING[mode]
       when Fixnum
         mapped_mode = mode == 0 ? BLOCKING_MAPPING["blocking"] : BLOCKING_MAPPING["nonblocking"]
-      when Boolean
+      when TrueClass, FalseClass
         mapped_mode = mode == true ? BLOCKING_MAPPING["nonblocking"] : BLOCKING_MAPPING["blocking"]
       end
 

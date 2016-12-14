@@ -70,7 +70,6 @@ module Pcap4JRuby
         expect(filter).to_not be_nil
         expect(filter).to be_a(Pcap4JRuby::BPFProgram)
         expect(filter.expression.length > 0).to be(true)
-        filter.finalize
       end
 
       it "detects invalid filter syntax when compiling" do

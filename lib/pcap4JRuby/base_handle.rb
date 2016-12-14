@@ -46,8 +46,27 @@ module Pcap4JRuby
     end
 
     def set_filter(expression, opts={})
-      program = compile(expression, opts)
-      @handle.setFilter(program.to_java)
+      optimize = if opts[:optimize] == false
+                   org.pcap4j.core.BpfProgram::BpfCompileMode.valueOf("NONOPTIMIZE")
+                 else
+                   org.pcap4j.core.BpfProgram::BpfCompileMode.valueOf("OPTIMIZE")
+                 end
+
+      netmask = if opts[:netmask]
+                  java.net.InetAddress.getByName(opts[:netmask])
+                else
+                  nil
+                end
+
+      begin
+        if netmask
+          @handle.setFilter(expression, optimize, netmask)
+        else
+          @handle.setFilter(expression, optimize)
+        end
+      rescue org.pcap4j.core.PcapNativeException
+        raise InvalidBPFExpression
+      end
     end
 
     def compile(expression, opts={})

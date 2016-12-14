@@ -20,6 +20,7 @@ module Pcap4JRuby
 
     def free
       return unless @program
+      return if @program.isFreed
       @program.free
       @program = nil
       @expression = nil
@@ -27,7 +28,7 @@ module Pcap4JRuby
 
     def finalize
       return unless @program
-      @program.free
+      #Finalizing also frees it on the java side
       @program.finalize
       @program = nil
       @expression = nil
