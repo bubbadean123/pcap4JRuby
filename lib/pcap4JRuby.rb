@@ -9,6 +9,14 @@ java_import 'org.pcap4j.core.Pcaps'
 java_import 'org.pcap4j.core.PcapNativeException'
 java_import 'org.pcap4j.core.PcapNetworkInterface'
 
+#Disable logback logging
+java_import 'org.slf4j.LoggerFactory'
+java_import 'ch.qos.logback.classic.Level'
+java_import 'ch.qos.logback.classic.Logger'
+
+root = LoggerFactory.getLogger(Logger::ROOT_LOGGER_NAME);
+root.setLevel(Level::OFF)
+
 module Pcap4JRuby
 
   DEFAULT_SNAPLEN = 65535

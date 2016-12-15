@@ -16,14 +16,15 @@ Gem::Specification.new do |spec|
 
   spec.require_path = "lib"
 
-  spec.add_runtime_dependency("jar-dependencies", "~> 0.3")
   spec.add_runtime_dependency("ruby-maven", "~> 3.3")
   spec.requirements << "jar net.java.dev.jna:jna, 4.2.1"
   spec.requirements << "jar org.slf4j:slf4j-api, 1.7.21"
   spec.requirements << "jar ch.qos.logback:logback-core, 1.1.7"
   spec.requirements << "jar ch.qos.logback:logback-classic, 1.1.7"
-  spec.requirements << "jar org.pcap4j:pcap4j-core, 1.6.6"
-  spec.requirements << "jar org.pcap4j:pcap4j-packetfactory-static, 1.6.6"
+  spec.requirements << "jar org.pcap4j:pcap4j-core, 1.7.0"
+  spec.requirements << "jar org.pcap4j:pcap4j-packetfactory-static, 1.7.0"
 
+  spec.add_development_dependency("jar-dependencies", "~> 0.3")
+  spec.add_development_dependency("rake", '~> 0')
   spec.add_development_dependency("rspec", "~> 3.5")
 end
